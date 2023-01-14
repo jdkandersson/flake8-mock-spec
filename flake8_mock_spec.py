@@ -88,9 +88,9 @@ def _get_fully_qualified_name(node: ast.expr) -> tuple[str, ...] | None:
         Tuple containing all the elements of the fully qualified name of the node or None if
         unexpected nodes are found.
     """
-    if type(node) is ast.Name:
+    if isinstance(node, ast.Name):
         return (node.id,)
-    if type(node) is ast.Attribute:
+    if isinstance(node, ast.Attribute):
         fully_qualified_parent = _get_fully_qualified_name(node.value)
         if fully_qualified_parent:
             return (*fully_qualified_parent, node.attr)
