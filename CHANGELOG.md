@@ -14,6 +14,14 @@
 - Ensure that error codes are correctly mapped for `NonCallableMock` and
   `AsyncMock` which were mapped to the `MagicMock` code before
 
+### Changed
+
+- Changed codes for mock checks:
+   - `Mock`: `TMS001` -> `TMS010`,
+   - `MagicMock`: `TMS002` -> `TMS011`,
+   - `NonCallableMock`: `TMS003` -> `TMS012` and
+   - `AsyncMock`: `TMS004` -> `TMS013`.
+
 ## [v1.1.0] - 2023-01-14
 
 ### Added
