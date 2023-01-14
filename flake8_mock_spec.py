@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import ast
-from unittest import mock
 from typing import Iterator, NamedTuple
+from unittest import mock
 
 MOCK_CLASS: str = mock.Mock.__name__
 MAGIC_MOCK_CLASS: str = mock.MagicMock.__name__

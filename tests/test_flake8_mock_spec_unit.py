@@ -7,7 +7,7 @@ from unittest import mock
 
 import pytest
 
-from flake8_mock_spec import MAGIC_MOCK_SPEC_MSG, MOCK_SPEC_MSG, Plugin, MOCK_CLASSES
+from flake8_mock_spec import MAGIC_MOCK_SPEC_MSG, MOCK_CLASSES, MOCK_SPEC_MSG, Plugin
 
 
 def _result(code: str) -> tuple[str, ...]:
