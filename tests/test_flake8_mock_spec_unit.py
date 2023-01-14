@@ -43,6 +43,20 @@ MagicMock()
         ),
         pytest.param(
             """
+NonCallableMock()
+""",
+            (f"2:0 {MAGIC_MOCK_SPEC_MSG}",),
+            id="module NonCallableMock no spec",
+        ),
+        pytest.param(
+            """
+AsyncMock()
+""",
+            (f"2:0 {MAGIC_MOCK_SPEC_MSG}",),
+            id="module AsyncMock no spec",
+        ),
+        pytest.param(
+            """
 mock.Mock()
 """,
             (f"2:0 {MOCK_SPEC_MSG}",),
@@ -125,6 +139,34 @@ MagicMock(spec_set=1)
 """,
             (),
             id="module MagicMock spec_set",
+        ),
+        pytest.param(
+            """
+NonCallableMock(spec=1)
+""",
+            (),
+            id="module NonCallableMock spec",
+        ),
+        pytest.param(
+            """
+NonCallableMock(spec_set=1)
+""",
+            (),
+            id="module NonCallableMock spec_set",
+        ),
+        pytest.param(
+            """
+AsyncMock(spec=1)
+""",
+            (),
+            id="module AsyncMock spec",
+        ),
+        pytest.param(
+            """
+AsyncMock(spec_set=1)
+""",
+            (),
+            id="module AsyncMock spec_set",
         ),
         pytest.param(
             """
