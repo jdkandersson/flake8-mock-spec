@@ -39,6 +39,12 @@ ASYNC_MOCK_SPEC_MSG = MOCK_SPEC_MSG_BASE % (
     ASYNC_MOCK_CLASS,
     ASYNC_MOCK_SPEC_CODE.lower(),
 )
+MOCK_MSG_LOOKUP = {
+    MOCK_CLASS: MOCK_SPEC_MSG,
+    MAGIC_MOCK_CLASS: MAGIC_MOCK_SPEC_MSG,
+    NON_CALLABLE_MOCK_CLASS: NON_CALLABLE_MOCK_SPEC_MSG,
+    ASYNC_MOCK_CLASS: ASYNC_MOCK_SPEC_MSG,
+}
 
 PATCH_FUNCTION: str = mock.patch.__name__
 PATCH_ARGS = frozenset(("new", "spec", "spec_set", "autospec", "new_callable"))
@@ -96,7 +102,7 @@ class Visitor(ast.NodeVisitor):
                     Problem(
                         lineno=node.lineno,
                         col_offset=node.col_offset,
-                        msg=MOCK_SPEC_MSG if name == MOCK_CLASS else MAGIC_MOCK_SPEC_MSG,
+                        msg=MOCK_MSG_LOOKUP[name],
                     )
                 )
 

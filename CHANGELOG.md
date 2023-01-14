@@ -9,6 +9,11 @@
 - Lint checks that ensure `patch` is called with any one or more of the `new`,
   `spec`, `spec_set`, `autospec` or `new_callable` arguments
 
+### Fix
+
+- Ensure that error codes are correctly mapped for `NonCallableMock` and
+  `AsyncMock` which were mapped to the `MagicMock` code before
+
 ## [v1.1.0] - 2023-01-14
 
 ### Added

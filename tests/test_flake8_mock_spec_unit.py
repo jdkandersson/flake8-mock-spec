@@ -7,7 +7,15 @@ from unittest import mock
 
 import pytest
 
-from flake8_mock_spec import MAGIC_MOCK_SPEC_MSG, MOCK_CLASSES, MOCK_SPEC_MSG, Plugin, PATCH_MSG
+from flake8_mock_spec import (
+    MAGIC_MOCK_SPEC_MSG,
+    MOCK_CLASSES,
+    MOCK_SPEC_MSG,
+    Plugin,
+    PATCH_MSG,
+    NON_CALLABLE_MOCK_SPEC_MSG,
+    ASYNC_MOCK_SPEC_MSG,
+)
 
 
 def _result(code: str) -> tuple[str, ...]:
@@ -46,14 +54,14 @@ MagicMock()
             """
 NonCallableMock()
 """,
-            (f"2:0 {MAGIC_MOCK_SPEC_MSG}",),
+            (f"2:0 {NON_CALLABLE_MOCK_SPEC_MSG}",),
             id="module NonCallableMock no spec",
         ),
         pytest.param(
             """
 AsyncMock()
 """,
-            (f"2:0 {MAGIC_MOCK_SPEC_MSG}",),
+            (f"2:0 {ASYNC_MOCK_SPEC_MSG}",),
             id="module AsyncMock no spec",
         ),
         pytest.param(
