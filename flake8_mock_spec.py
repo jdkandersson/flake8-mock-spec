@@ -65,12 +65,12 @@ PATCH_FUNCTIONS = frozenset((PATCH_FUNCTION, PATCH_OBJECT_FUNCTION))
 
 
 class Problem(NamedTuple):
-    """Represents a problem within the code.
+    """Represents a problem found in the code.
 
     Attrs:
-        lineno: The line number the problem occurred on
-        col_offset: The column the problem occurred on
-        msg: The message explaining the problem
+        lineno: The line number on which the problem was found.
+        col_offset: The column on which the problem was found.
+        msg: The message describing the problem.
     """
 
     lineno: int
@@ -79,13 +79,14 @@ class Problem(NamedTuple):
 
 
 def _get_fully_qualified_name(node: ast.expr) -> tuple[str, ...] | None:
-    """Get the fully qualified name of an attribute node.
+    """Retrieve the fully qualified name of a call func node.
 
     Args:
         node: The node to get the name of.
 
     Returns:
-        The fully qualified name of the node as a tuple containing all the elements of the name.
+        Tuple containing all the elements of the fully qualified name of the node or None if
+        unexpected nodes are found.
     """
     if type(node) is ast.Name:
         return (node.id,)
@@ -97,13 +98,15 @@ def _get_fully_qualified_name(node: ast.expr) -> tuple[str, ...] | None:
 
 
 def _check_patch_keywords(node: ast.Call, msg: str) -> Problem | None:
-    """Check that call has expected patch arguments.
+    """Check if the given patch call has expected arguments.
 
     Args:
         node: The patch call node to check.
+        msg: The error message to return if the check fails.
 
     Returns:
-        A problem if the patch call does not have the expected arguments or None.
+        Problem: If the patch call does not have the expected arguments.
+        None: If the patch call has the expected arguments.
     """
     if not any(keyword.arg in PATCH_ARGS for keyword in node.keywords):
         return Problem(lineno=node.lineno, col_offset=node.col_offset, msg=msg)
@@ -111,10 +114,10 @@ def _check_patch_keywords(node: ast.Call, msg: str) -> Problem | None:
 
 
 class Visitor(ast.NodeVisitor):
-    """Visits AST nodes and check mock construction calls.
+    """Visits AST nodes and checks use of mock objects and patch calls.
 
     Attrs:
-        problems: All the problems that were encountered.
+        problems: A list of all the problems encountered while visiting the AST nodes.
     """
 
     problems: list[Problem]
@@ -125,10 +128,10 @@ class Visitor(ast.NodeVisitor):
 
     # The function must be called the same as the name of the node
     def visit_Call(self, node: ast.Call) -> None:  # pylint: disable=invalid-name
-        """Visit all Call nodes.
+        """Visit all Call nodes in the AST tree.
 
         Args:
-            node: The Call node.
+            node: The Call node being visited.
         """
         # Get the name of the node that has the call
         fully_qualified_name = _get_fully_qualified_name(node=node.func)
@@ -160,7 +163,7 @@ class Visitor(ast.NodeVisitor):
 
 
 class Plugin:
-    """Checks mocks are constructed with the spec argument.
+    """Checks that construction of mocks and calling of patch.
 
     Attrs:
         name: The name of the plugin.
@@ -172,18 +175,18 @@ class Plugin:
     name = __name__
 
     def __init__(self, tree: ast.AST) -> None:
-        """Construct.
+        """Initialize the plugin.
 
         Args:
-            tree: The AST syntax tree for a file.
+            tree: The AST syntax tree for the file to be linted.
         """
         self._tree = tree
 
     def run(self) -> Iterator[tuple[int, int, str, type["Plugin"]]]:
-        """Lint a file.
+        """Lint a file and yield any issues found.
 
         Yields:
-            All the issues that were found.
+            A tuple containing the line number, column and error message of the issues found.
         """
         visitor = Visitor()
         visitor.visit(self._tree)
