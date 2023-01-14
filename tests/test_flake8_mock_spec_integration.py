@@ -9,12 +9,12 @@ from pathlib import Path
 import pytest
 
 from flake8_mock_spec import (
+    ASYNC_MOCK_SPEC_CODE,
     MAGIC_MOCK_SPEC_CODE,
     MOCK_SPEC_CODE,
     MOCK_SPEC_MSG,
-    PATCH_CODE,
     NON_CALLABLE_MOCK_SPEC_CODE,
-    ASYNC_MOCK_SPEC_CODE,
+    PATCH_CODE,
 )
 
 

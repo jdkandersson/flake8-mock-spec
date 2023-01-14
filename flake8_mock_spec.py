@@ -46,7 +46,8 @@ MOCK_MSG_LOOKUP = {
     ASYNC_MOCK_CLASS: ASYNC_MOCK_SPEC_MSG,
 }
 
-PATCH_FUNCTION: str = mock.patch.__name__
+# The attribute actually does exist, mypy reports that it doesn't
+PATCH_FUNCTION: str = mock.patch.__name__  # type: ignore
 PATCH_ARGS = frozenset(("new", "spec", "spec_set", "autospec", "new_callable"))
 PATCH_CODE = f"{ERROR_CODE_PREFIX}020"
 PATCH_MSG = (

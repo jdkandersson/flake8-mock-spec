@@ -8,13 +8,13 @@ from unittest import mock
 import pytest
 
 from flake8_mock_spec import (
+    ASYNC_MOCK_SPEC_MSG,
     MAGIC_MOCK_SPEC_MSG,
     MOCK_CLASSES,
     MOCK_SPEC_MSG,
-    Plugin,
-    PATCH_MSG,
     NON_CALLABLE_MOCK_SPEC_MSG,
-    ASYNC_MOCK_SPEC_MSG,
+    PATCH_MSG,
+    Plugin,
 )
 
 
