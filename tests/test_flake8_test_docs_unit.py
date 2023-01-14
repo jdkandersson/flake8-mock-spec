@@ -45,14 +45,14 @@ MagicMock()
             """
 mock.Mock()
 """,
-            (f"2:5 {MOCK_SPEC_MSG}",),
+            (f"2:0 {MOCK_SPEC_MSG}",),
             id="module mock.Mock no spec",
         ),
         pytest.param(
             """
 unittest.mock.Mock()
 """,
-            (f"2:14 {MOCK_SPEC_MSG}",),
+            (f"2:0 {MOCK_SPEC_MSG}",),
             id="module unittest.mock.Mock no spec",
         ),
         pytest.param(
@@ -125,6 +125,20 @@ MagicMock(spec_set=1)
 """,
             (),
             id="module MagicMock spec_set",
+        ),
+        pytest.param(
+            """
+Other()
+""",
+            (),
+            id="call not mock",
+        ),
+        pytest.param(
+            """
+module.Other()
+""",
+            (),
+            id="nested call not mock",
         ),
     ],
 )
