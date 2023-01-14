@@ -6,7 +6,7 @@ import ast
 
 import pytest
 
-from flake8_mock_spec import MOCK_SPEC_MSG, MAGIC_MOCK_SPEC_MSG, Plugin
+from flake8_mock_spec import MAGIC_MOCK_SPEC_MSG, MOCK_SPEC_MSG, Plugin
 
 
 def _result(code: str) -> tuple[str, ...]:

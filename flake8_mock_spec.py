@@ -88,6 +88,9 @@ class Plugin:
         name: The name of the plugin.
     """
 
+    # flake8 requires this class to exist
+    # pylint: disable=too-few-public-methods
+
     name = __name__
 
     def __init__(self, tree: ast.AST) -> None:
