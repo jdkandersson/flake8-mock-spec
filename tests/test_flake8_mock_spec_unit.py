@@ -333,12 +333,12 @@ def function_1():
         ),
         pytest.param(
             """
-@patch.multiple(new=1)
+@patch.multiple(spec=1)
 def function_1():
     pass
 """,
             (),
-            id="decorator multiple new arg",
+            id="decorator multiple spec arg",
         ),
         pytest.param(
             """
