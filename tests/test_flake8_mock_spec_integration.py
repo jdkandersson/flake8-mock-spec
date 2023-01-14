@@ -15,8 +15,8 @@ from flake8_mock_spec import (
     MOCK_SPEC_MSG,
     NON_CALLABLE_MOCK_SPEC_CODE,
     PATCH_CODE,
-    PATCH_OBJECT_CODE,
     PATCH_MULTIPLE_CODE,
+    PATCH_OBJECT_CODE,
 )
 
 

@@ -14,8 +14,8 @@ from flake8_mock_spec import (
     MOCK_SPEC_MSG,
     NON_CALLABLE_MOCK_SPEC_MSG,
     PATCH_MSG,
-    PATCH_OBJECT_MSG,
     PATCH_MULTIPLE_MSG,
+    PATCH_OBJECT_MSG,
     Plugin,
 )
 
