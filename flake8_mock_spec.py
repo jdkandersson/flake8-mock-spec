@@ -4,10 +4,13 @@ from __future__ import annotations
 
 import ast
 from typing import Iterator, NamedTuple
+from unittest import mock
 
-MOCK_CLASS = "Mock"
-MAGIC_MOCK_CLASS = "MagicMock"
-MOCK_CLASSES = frozenset((MOCK_CLASS, MAGIC_MOCK_CLASS))
+MOCK_CLASS: str = mock.Mock.__name__
+MAGIC_MOCK_CLASS: str = mock.MagicMock.__name__
+NON_CALLABLE_MOCK_CLASS: str = mock.NonCallableMock.__name__
+ASYNC_MOCK_CLASS: str = mock.AsyncMock.__name__
+MOCK_CLASSES = frozenset((MOCK_CLASS, MAGIC_MOCK_CLASS, NON_CALLABLE_MOCK_CLASS, ASYNC_MOCK_CLASS))
 SPEC_ARGS = frozenset(("spec", "spec_set"))
 
 ERROR_CODE_PREFIX = "TMS"
@@ -23,6 +26,18 @@ MAGIC_MOCK_SPEC_MSG = MOCK_SPEC_MSG_BASE % (
     MAGIC_MOCK_SPEC_CODE,
     MAGIC_MOCK_CLASS,
     MAGIC_MOCK_SPEC_CODE.lower(),
+)
+NON_CALLABLE_MOCK_SPEC_CODE = f"{ERROR_CODE_PREFIX}003"
+NON_CALLABLE_MOCK_SPEC_MSG = MOCK_SPEC_MSG_BASE % (
+    NON_CALLABLE_MOCK_SPEC_CODE,
+    NON_CALLABLE_MOCK_CLASS,
+    NON_CALLABLE_MOCK_SPEC_CODE.lower(),
+)
+ASYNC_MOCK_SPEC_CODE = f"{ERROR_CODE_PREFIX}004"
+ASYNC_MOCK_SPEC_MSG = MOCK_SPEC_MSG_BASE % (
+    ASYNC_MOCK_SPEC_CODE,
+    ASYNC_MOCK_CLASS,
+    ASYNC_MOCK_SPEC_CODE.lower(),
 )
 
 

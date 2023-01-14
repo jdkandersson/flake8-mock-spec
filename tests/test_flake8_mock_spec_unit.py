@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import ast
+from unittest import mock
 
 import pytest
 
-from flake8_mock_spec import MAGIC_MOCK_SPEC_MSG, MOCK_SPEC_MSG, Plugin
+from flake8_mock_spec import MAGIC_MOCK_SPEC_MSG, MOCK_CLASSES, MOCK_SPEC_MSG, Plugin
 
 
 def _result(code: str) -> tuple[str, ...]:
@@ -40,6 +41,20 @@ MagicMock()
 """,
             (f"2:0 {MAGIC_MOCK_SPEC_MSG}",),
             id="module MagicMock no spec",
+        ),
+        pytest.param(
+            """
+NonCallableMock()
+""",
+            (f"2:0 {MAGIC_MOCK_SPEC_MSG}",),
+            id="module NonCallableMock no spec",
+        ),
+        pytest.param(
+            """
+AsyncMock()
+""",
+            (f"2:0 {MAGIC_MOCK_SPEC_MSG}",),
+            id="module AsyncMock no spec",
         ),
         pytest.param(
             """
@@ -128,6 +143,34 @@ MagicMock(spec_set=1)
         ),
         pytest.param(
             """
+NonCallableMock(spec=1)
+""",
+            (),
+            id="module NonCallableMock spec",
+        ),
+        pytest.param(
+            """
+NonCallableMock(spec_set=1)
+""",
+            (),
+            id="module NonCallableMock spec_set",
+        ),
+        pytest.param(
+            """
+AsyncMock(spec=1)
+""",
+            (),
+            id="module AsyncMock spec",
+        ),
+        pytest.param(
+            """
+AsyncMock(spec_set=1)
+""",
+            (),
+            id="module AsyncMock spec_set",
+        ),
+        pytest.param(
+            """
 Other()
 """,
             (),
@@ -149,3 +192,16 @@ def test_plugin(code: str, expected_result: tuple[str, ...]):
     then: the expected result is returned
     """
     assert _result(code) == expected_result
+
+
+@pytest.mark.parametrize(
+    "class_", [pytest.param(class_, id=f"{class_} class") for class_ in MOCK_CLASSES]
+)
+def test_mock_classes_exist(class_: str):
+    """
+    given: mock class
+    when: the existence of the class on unittest.mock is checked
+    then: the class exists in mock and can be instantiated
+    """
+    assert hasattr(mock, class_)
+    getattr(mock, class_)()

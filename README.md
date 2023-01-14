@@ -53,6 +53,10 @@ A few rules have been defined to allow for selective suppression:
   `spec` or `spec_set` argument.
 * `TMS002`: checks that `unittest.mock.MagicMock` instances are constructed with
   the `spec` or `spec_set` argument.
+* `TMS003`: checks that `unittest.mock.NonCallableMock` instances are
+  constructed with the `spec` or `spec_set` argument.
+* `TMS004`: checks that `unittest.mock.AsyncMock` instances are constructed
+  with the `spec` or `spec_set` argument.
 
 ### Fix TMS001
 
@@ -118,4 +122,70 @@ from foo import Foo
 
 def test_foo():
     mocked_foo = mock.MagicMock(spec_set=Foo)
+```
+
+### Fix TMS003
+
+This linting rule is triggered by creating a `unittest.mock.NonCallableMock`
+instance without the `spec` or `spec_set` argument. For example:
+
+```Python
+from unittest import mock
+
+def test_foo():
+    mocked_foo = mock.NonCallableMock()
+```
+
+This example can be fixed by using the `spec` or `spec_set` argument in the
+constructor:
+
+```Python
+from unittest import mock
+
+from foo import Foo
+
+def test_foo():
+    mocked_foo = mock.NonCallableMock(spec=Foo)
+```
+
+```Python
+from unittest import mock
+
+from foo import Foo
+
+def test_foo():
+    mocked_foo = mock.NonCallableMock(spec_set=Foo)
+```
+
+### Fix TMS004
+
+This linting rule is triggered by creating a `unittest.mock.AsyncMock` instance
+without the `spec` or `spec_set` argument. For example:
+
+```Python
+from unittest import mock
+
+def test_foo():
+    mocked_foo = mock.AsyncMock()
+```
+
+This example can be fixed by using the `spec` or `spec_set` argument in the
+constructor:
+
+```Python
+from unittest import mock
+
+from foo import Foo
+
+def test_foo():
+    mocked_foo = mock.AsyncMock(spec=Foo)
+```
+
+```Python
+from unittest import mock
+
+from foo import Foo
+
+def test_foo():
+    mocked_foo = mock.AsyncMock(spec_set=Foo)
 ```
