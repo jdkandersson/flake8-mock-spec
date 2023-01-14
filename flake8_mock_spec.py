@@ -41,11 +41,11 @@ ASYNC_MOCK_SPEC_MSG = MOCK_SPEC_MSG_BASE % (
 )
 
 PATCH_FUNCTION: str = mock.patch.__name__
-PATCH_EXPECTED_ARGS = frozenset(("new", "spec", "spec_set", "autospec", "new_callable"))
+PATCH_ARGS = frozenset(("new", "spec", "spec_set", "autospec", "new_callable"))
 PATCH_CODE = f"{ERROR_CODE_PREFIX}020"
 PATCH_MSG = (
     f"{PATCH_CODE} unittest.mock.{PATCH_FUNCTION} should be called with any of the "
-    f"{', '.join(PATCH_EXPECTED_ARGS)} arguments, {MORE_INFO_BASE}#fix-{PATCH_CODE.lower()}"
+    f"{', '.join(PATCH_ARGS)} arguments, {MORE_INFO_BASE}#fix-{PATCH_CODE.lower()}"
 )
 
 
@@ -98,6 +98,12 @@ class Visitor(ast.NodeVisitor):
                         col_offset=node.col_offset,
                         msg=MOCK_SPEC_MSG if name == MOCK_CLASS else MAGIC_MOCK_SPEC_MSG,
                     )
+                )
+
+        if name is not None and name == PATCH_FUNCTION:
+            if not any(keyword.arg in PATCH_ARGS for keyword in node.keywords):
+                self.problems.append(
+                    Problem(lineno=node.lineno, col_offset=node.col_offset, msg=PATCH_MSG)
                 )
 
         # Ensure recursion continues

@@ -203,8 +203,26 @@ def test_plugin_mock(code: str, expected_result: tuple[str, ...]):
 def function_1():
     pass
 """,
-            (f"2:0 {PATCH_MSG}",),
+            (f"2:1 {PATCH_MSG}",),
             id="decorator no arg",
+        ),
+        pytest.param(
+            """
+@mock.patch()
+def function_1():
+    pass
+""",
+            (f"2:1 {PATCH_MSG}",),
+            id="module decorator no arg",
+        ),
+        pytest.param(
+            """
+@unittest.mock.patch()
+def function_1():
+    pass
+""",
+            (f"2:1 {PATCH_MSG}",),
+            id="nested module decorator no arg",
         ),
         pytest.param(
             """
@@ -213,7 +231,7 @@ class Class1:
     def function_1(self):
         pass
 """,
-            (f"2:0 {PATCH_MSG}",),
+            (f"3:5 {PATCH_MSG}",),
             id="method decorator no arg",
         ),
         pytest.param(
@@ -222,7 +240,7 @@ class Class1:
 def function_1():
     pass
 """,
-            (f"2:0 {PATCH_MSG}",),
+            (f"2:1 {PATCH_MSG}",),
             id="decorator single arg not expected",
         ),
         pytest.param(
@@ -231,7 +249,7 @@ def function_1():
 def function_1():
     pass
 """,
-            (f"2:0 {PATCH_MSG}",),
+            (f"2:1 {PATCH_MSG}",),
             id="decorator multiple arg not expected",
         ),
         pytest.param(
@@ -239,14 +257,14 @@ def function_1():
 with patch():
     pass
 """,
-            (f"2:0 {PATCH_MSG}",),
+            (f"2:5 {PATCH_MSG}",),
             id="context manager no arg",
         ),
         pytest.param(
             """
 patcher = patch()
 """,
-            (f"2:0 {PATCH_MSG}",),
+            (f"2:10 {PATCH_MSG}",),
             id="assignment no arg",
         ),
         pytest.param(
@@ -257,6 +275,24 @@ def function_1():
 """,
             (),
             id="decorator new arg",
+        ),
+        pytest.param(
+            """
+@mock.patch(new=1)
+def function_1():
+    pass
+""",
+            (),
+            id="module decorator new arg",
+        ),
+        pytest.param(
+            """
+@unittest.mock.patch(new=1)
+def function_1():
+    pass
+""",
+            (),
+            id="nested module decorator new arg",
         ),
         pytest.param(
             """
