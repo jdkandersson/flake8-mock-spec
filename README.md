@@ -59,6 +59,8 @@ A few rules have been defined to allow for selective suppression:
   with the `spec` or `spec_set` argument.
 * `TMS020`: checks that `unittest.mock.patch` is called with any one or more of
   the `new`, `spec`, `spec_set`, `autospec` or `new_callable` arguments
+* `TMS021`: checks that `unittest.mock.patch.object` is called with any one or
+  more of the `new`, `spec`, `spec_set`, `autospec` or `new_callable` arguments
 
 ### Fix TMS010
 
@@ -227,4 +229,43 @@ with mock.patch("Foo", spec_set=Foo) as mocked_foo:
     pass
 
 foo_patcher = patch("Foo", autospec=True)
+```
+
+### Fix TMS021
+
+This linting rule is triggered by calling `unittest.mock.patch.objecy` without
+any one or more of the `new`, `spec`, `spec_set`, `autospec` or `new_callable`
+arguments. For example:
+
+```Python
+from unittest import mock
+
+from foo import Foo
+
+@mock.patch.object(Foo, "bar")
+def test_foo():
+    pass
+
+with mock.patch.object(Foo, "bar") as mocked_foo:
+    pass
+
+foo_patcher = patch(Foo, "bar")
+```
+
+This example can be fixed by using any one or more of the `new`, `spec`,
+`spec_set`, `autospec` or `new_callable` arguments:
+
+```Python
+from unittest import mock
+
+from foo import Foo
+
+@mock.patch.object(Foo, "bar", spec=Foo.bar)
+def test_foo():
+    pass
+
+with mock.patch.object(Foo, "bar", spec_set=Foo.bar) as mocked_foo:
+    pass
+
+foo_patcher = patch(Foo, "bar", autospec=True)
 ```

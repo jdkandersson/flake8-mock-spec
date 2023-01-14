@@ -14,6 +14,7 @@ from flake8_mock_spec import (
     MOCK_SPEC_MSG,
     NON_CALLABLE_MOCK_SPEC_MSG,
     PATCH_MSG,
+    PATCH_OBJECT_MSG,
     Plugin,
 )
 
@@ -216,6 +217,33 @@ def function_1():
         ),
         pytest.param(
             """
+@patch.object()
+def function_1():
+    pass
+""",
+            (f"2:1 {PATCH_OBJECT_MSG}",),
+            id="decorator object no arg",
+        ),
+        pytest.param(
+            """
+@mock.patch.object()
+def function_1():
+    pass
+""",
+            (f"2:1 {PATCH_OBJECT_MSG}",),
+            id="nested decorator object no arg",
+        ),
+        pytest.param(
+            """
+@unittest.mock.patch.object()
+def function_1():
+    pass
+""",
+            (f"2:1 {PATCH_OBJECT_MSG}",),
+            id="deeply nested decorator object no arg",
+        ),
+        pytest.param(
+            """
 @mock.patch()
 def function_1():
     pass
@@ -283,6 +311,15 @@ def function_1():
 """,
             (),
             id="decorator new arg",
+        ),
+        pytest.param(
+            """
+@patch.object(new=1)
+def function_1():
+    pass
+""",
+            (),
+            id="decorator object new arg",
         ),
         pytest.param(
             """

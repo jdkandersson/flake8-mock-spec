@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [v1.3.0] - 2023-01-14
+
+### Added
+
+- Lint checks that ensure `patch.object` is called with any one or more of the
+  `new`, `spec`, `spec_set`, `autospec` or `new_callable` arguments
+
 ## [v1.2.0] - 2023-01-14
 
 ### Added
