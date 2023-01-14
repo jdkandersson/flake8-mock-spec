@@ -8,7 +8,14 @@ from pathlib import Path
 
 import pytest
 
-from flake8_mock_spec import MAGIC_MOCK_SPEC_CODE, MOCK_SPEC_CODE, MOCK_SPEC_MSG
+from flake8_mock_spec import (
+    ASYNC_MOCK_SPEC_CODE,
+    MAGIC_MOCK_SPEC_CODE,
+    MOCK_SPEC_CODE,
+    MOCK_SPEC_MSG,
+    NON_CALLABLE_MOCK_SPEC_CODE,
+    PATCH_CODE,
+)
 
 
 def test_help():
@@ -86,6 +93,30 @@ from unittest import mock
 mock.MagicMock()  # noqa: {MAGIC_MOCK_SPEC_CODE}
 """,
             id=f"{MAGIC_MOCK_SPEC_CODE} disabled",
+        ),
+        pytest.param(
+            f"""
+from unittest import mock
+
+mock.NonCallableMock()  # noqa: {NON_CALLABLE_MOCK_SPEC_CODE}
+""",
+            id=f"{NON_CALLABLE_MOCK_SPEC_CODE} disabled",
+        ),
+        pytest.param(
+            f"""
+from unittest import mock
+
+mock.AsyncMock()  # noqa: {ASYNC_MOCK_SPEC_CODE}
+""",
+            id=f"{ASYNC_MOCK_SPEC_CODE} disabled",
+        ),
+        pytest.param(
+            f"""
+from unittest import mock
+
+mock.patch()  # noqa: {PATCH_CODE}
+""",
+            id=f"{PATCH_CODE} disabled",
         ),
     ],
 )

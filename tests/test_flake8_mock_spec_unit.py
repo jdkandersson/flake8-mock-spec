@@ -7,7 +7,15 @@ from unittest import mock
 
 import pytest
 
-from flake8_mock_spec import MAGIC_MOCK_SPEC_MSG, MOCK_CLASSES, MOCK_SPEC_MSG, Plugin
+from flake8_mock_spec import (
+    ASYNC_MOCK_SPEC_MSG,
+    MAGIC_MOCK_SPEC_MSG,
+    MOCK_CLASSES,
+    MOCK_SPEC_MSG,
+    NON_CALLABLE_MOCK_SPEC_MSG,
+    PATCH_MSG,
+    Plugin,
+)
 
 
 def _result(code: str) -> tuple[str, ...]:
@@ -46,14 +54,14 @@ MagicMock()
             """
 NonCallableMock()
 """,
-            (f"2:0 {MAGIC_MOCK_SPEC_MSG}",),
+            (f"2:0 {NON_CALLABLE_MOCK_SPEC_MSG}",),
             id="module NonCallableMock no spec",
         ),
         pytest.param(
             """
 AsyncMock()
 """,
-            (f"2:0 {MAGIC_MOCK_SPEC_MSG}",),
+            (f"2:0 {ASYNC_MOCK_SPEC_MSG}",),
             id="module AsyncMock no spec",
         ),
         pytest.param(
@@ -185,7 +193,206 @@ module.Other()
         ),
     ],
 )
-def test_plugin(code: str, expected_result: tuple[str, ...]):
+def test_plugin_mock(code: str, expected_result: tuple[str, ...]):
+    """
+    given: code
+    when: linting is run on the code
+    then: the expected result is returned
+    """
+    assert _result(code) == expected_result
+
+
+@pytest.mark.parametrize(
+    "code, expected_result",
+    [
+        pytest.param(
+            """
+@patch()
+def function_1():
+    pass
+""",
+            (f"2:1 {PATCH_MSG}",),
+            id="decorator no arg",
+        ),
+        pytest.param(
+            """
+@mock.patch()
+def function_1():
+    pass
+""",
+            (f"2:1 {PATCH_MSG}",),
+            id="module decorator no arg",
+        ),
+        pytest.param(
+            """
+@unittest.mock.patch()
+def function_1():
+    pass
+""",
+            (f"2:1 {PATCH_MSG}",),
+            id="nested module decorator no arg",
+        ),
+        pytest.param(
+            """
+class Class1:
+    @patch()
+    def function_1(self):
+        pass
+""",
+            (f"3:5 {PATCH_MSG}",),
+            id="method decorator no arg",
+        ),
+        pytest.param(
+            """
+@patch(other=1)
+def function_1():
+    pass
+""",
+            (f"2:1 {PATCH_MSG}",),
+            id="decorator single arg not expected",
+        ),
+        pytest.param(
+            """
+@patch(other=1, another=2)
+def function_1():
+    pass
+""",
+            (f"2:1 {PATCH_MSG}",),
+            id="decorator multiple arg not expected",
+        ),
+        pytest.param(
+            """
+with patch():
+    pass
+""",
+            (f"2:5 {PATCH_MSG}",),
+            id="context manager no arg",
+        ),
+        pytest.param(
+            """
+patcher = patch()
+""",
+            (f"2:10 {PATCH_MSG}",),
+            id="assignment no arg",
+        ),
+        pytest.param(
+            """
+@patch(new=1)
+def function_1():
+    pass
+""",
+            (),
+            id="decorator new arg",
+        ),
+        pytest.param(
+            """
+@mock.patch(new=1)
+def function_1():
+    pass
+""",
+            (),
+            id="module decorator new arg",
+        ),
+        pytest.param(
+            """
+@unittest.mock.patch(new=1)
+def function_1():
+    pass
+""",
+            (),
+            id="nested module decorator new arg",
+        ),
+        pytest.param(
+            """
+@patch(spec=1)
+def function_1():
+    pass
+""",
+            (),
+            id="decorator spec arg",
+        ),
+        pytest.param(
+            """
+@patch(spec_set=1)
+def function_1():
+    pass
+""",
+            (),
+            id="decorator spec_set arg",
+        ),
+        pytest.param(
+            """
+@patch(autospec=1)
+def function_1():
+    pass
+""",
+            (),
+            id="decorator autospec arg",
+        ),
+        pytest.param(
+            """
+@patch(new_callable=1)
+def function_1():
+    pass
+""",
+            (),
+            id="decorator new_callable arg",
+        ),
+        pytest.param(
+            """
+@patch(new=1, other=2)
+def function_1():
+    pass
+""",
+            (),
+            id="decorator multiple args first expected",
+        ),
+        pytest.param(
+            """
+@patch(other=1, spec=2)
+def function_1():
+    pass
+""",
+            (),
+            id="decorator multiple args second expected",
+        ),
+        pytest.param(
+            """
+@patch(new=1, spec=2)
+def function_1():
+    pass
+""",
+            (),
+            id="decorator multiple args all expected",
+        ),
+        pytest.param(
+            """
+class Class1:
+    @patch(new=1)
+    def function_1(self):
+        pass
+""",
+            (),
+            id="method decorator new arg",
+        ),
+        pytest.param(
+            """
+with patch(new=1):
+    pass
+""",
+            (),
+            id="context manager new arg",
+        ),
+        pytest.param(
+            """
+patcher = patch(new=1)
+""",
+            (),
+            id="assignment manager new arg",
+        ),
+    ],
+)
+def test_plugin_patch(code: str, expected_result: tuple[str, ...]):
     """
     given: code
     when: linting is run on the code

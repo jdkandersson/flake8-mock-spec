@@ -19,25 +19,40 @@ MOCK_SPEC_MSG_BASE = (
     f"%s unittest.mock.%s instances should be constructed with the {' or '.join(SPEC_ARGS)} "
     f"argument, {MORE_INFO_BASE}#fix-%s"
 )
-MOCK_SPEC_CODE = f"{ERROR_CODE_PREFIX}001"
+MOCK_SPEC_CODE = f"{ERROR_CODE_PREFIX}010"
 MOCK_SPEC_MSG = MOCK_SPEC_MSG_BASE % (MOCK_SPEC_CODE, MOCK_CLASS, MOCK_SPEC_CODE.lower())
-MAGIC_MOCK_SPEC_CODE = f"{ERROR_CODE_PREFIX}002"
+MAGIC_MOCK_SPEC_CODE = f"{ERROR_CODE_PREFIX}011"
 MAGIC_MOCK_SPEC_MSG = MOCK_SPEC_MSG_BASE % (
     MAGIC_MOCK_SPEC_CODE,
     MAGIC_MOCK_CLASS,
     MAGIC_MOCK_SPEC_CODE.lower(),
 )
-NON_CALLABLE_MOCK_SPEC_CODE = f"{ERROR_CODE_PREFIX}003"
+NON_CALLABLE_MOCK_SPEC_CODE = f"{ERROR_CODE_PREFIX}012"
 NON_CALLABLE_MOCK_SPEC_MSG = MOCK_SPEC_MSG_BASE % (
     NON_CALLABLE_MOCK_SPEC_CODE,
     NON_CALLABLE_MOCK_CLASS,
     NON_CALLABLE_MOCK_SPEC_CODE.lower(),
 )
-ASYNC_MOCK_SPEC_CODE = f"{ERROR_CODE_PREFIX}004"
+ASYNC_MOCK_SPEC_CODE = f"{ERROR_CODE_PREFIX}013"
 ASYNC_MOCK_SPEC_MSG = MOCK_SPEC_MSG_BASE % (
     ASYNC_MOCK_SPEC_CODE,
     ASYNC_MOCK_CLASS,
     ASYNC_MOCK_SPEC_CODE.lower(),
+)
+MOCK_MSG_LOOKUP = {
+    MOCK_CLASS: MOCK_SPEC_MSG,
+    MAGIC_MOCK_CLASS: MAGIC_MOCK_SPEC_MSG,
+    NON_CALLABLE_MOCK_CLASS: NON_CALLABLE_MOCK_SPEC_MSG,
+    ASYNC_MOCK_CLASS: ASYNC_MOCK_SPEC_MSG,
+}
+
+# The attribute actually does exist, mypy reports that it doesn't
+PATCH_FUNCTION: str = mock.patch.__name__  # type: ignore
+PATCH_ARGS = frozenset(("new", "spec", "spec_set", "autospec", "new_callable"))
+PATCH_CODE = f"{ERROR_CODE_PREFIX}020"
+PATCH_MSG = (
+    f"{PATCH_CODE} unittest.mock.{PATCH_FUNCTION} should be called with any of the "
+    f"{', '.join(PATCH_ARGS)} arguments, {MORE_INFO_BASE}#fix-{PATCH_CODE.lower()}"
 )
 
 
@@ -88,8 +103,14 @@ class Visitor(ast.NodeVisitor):
                     Problem(
                         lineno=node.lineno,
                         col_offset=node.col_offset,
-                        msg=MOCK_SPEC_MSG if name == MOCK_CLASS else MAGIC_MOCK_SPEC_MSG,
+                        msg=MOCK_MSG_LOOKUP[name],
                     )
+                )
+
+        if name is not None and name == PATCH_FUNCTION:
+            if not any(keyword.arg in PATCH_ARGS for keyword in node.keywords):
+                self.problems.append(
+                    Problem(lineno=node.lineno, col_offset=node.col_offset, msg=PATCH_MSG)
                 )
 
         # Ensure recursion continues
