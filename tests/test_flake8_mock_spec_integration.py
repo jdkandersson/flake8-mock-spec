@@ -1,12 +1,14 @@
 """Integration tests for plugin."""
 
+from __future__ import annotations
+
 import subprocess
 import sys
 from pathlib import Path
 
 import pytest
 
-from flake8_mock_spec import MOCK_SPEC_CODE, MAGIC_MOCK_SPEC_CODE, MOCK_SPEC_MSG
+from flake8_mock_spec import MAGIC_MOCK_SPEC_CODE, MOCK_SPEC_CODE, MOCK_SPEC_MSG
 
 
 def test_help():

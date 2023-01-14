@@ -7,8 +7,8 @@ from typing import Iterator, NamedTuple
 
 MOCK_CLASS = "Mock"
 MAGIC_MOCK_CLASS = "MagicMock"
-ALL_MOCK_CLASSES = {MOCK_CLASS, MAGIC_MOCK_CLASS}
-SPEC_ARGS = {"spec", "spec_set"}
+MOCK_CLASSES = frozenset((MOCK_CLASS, MAGIC_MOCK_CLASS))
+SPEC_ARGS = frozenset(("spec", "spec_set"))
 
 ERROR_CODE_PREFIX = "TMS"
 MORE_INFO_BASE = "more information: https://github.com/jdkandersson/flake8-mock-spec"
@@ -41,7 +41,7 @@ class Problem(NamedTuple):
 
 
 class Visitor(ast.NodeVisitor):
-    """Visits AST nodes and check docstrings of test functions.
+    """Visits AST nodes and check mock construction calls.
 
     Attrs:
         problems: All the problems that were encountered.
@@ -67,8 +67,8 @@ class Visitor(ast.NodeVisitor):
         if isinstance(node.func, ast.Attribute):
             name = node.func.attr
 
-        if name is not None and name in ALL_MOCK_CLASSES:
-            if not any(keyword.arg in {"spec", "spec_set"} for keyword in node.keywords):
+        if name is not None and name in MOCK_CLASSES:
+            if not any(keyword.arg in SPEC_ARGS for keyword in node.keywords):
                 self.problems.append(
                     Problem(
                         lineno=node.lineno,
@@ -82,11 +82,14 @@ class Visitor(ast.NodeVisitor):
 
 
 class Plugin:
-    """Checks test docstrings for the arrange/act/assert structure.
+    """Checks mocks are constructed with the spec argument.
 
     Attrs:
         name: The name of the plugin.
     """
+
+    # flake8 requires this class to exist
+    # pylint: disable=too-few-public-methods
 
     name = __name__
 

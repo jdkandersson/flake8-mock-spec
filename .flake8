@@ -4,4 +4,5 @@ max-doc-length = 99
 extend-ignore = E203,W503
 per-file-ignores =
     tests/*:D205,D400
+    flake8_mock_spec.py:N802
 test-docs-pattern = given/when/then
