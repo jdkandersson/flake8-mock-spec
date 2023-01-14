@@ -68,6 +68,11 @@ PATCH_MULTIPLE_MSG = PATCH_MSG_BASE % (
     ".".join(PATCH_MULTIPLE_FUNCTION),
     PATCH_MULTIPLE_CODE.lower(),
 )
+PATCH_MSG_LOOKUP = {
+    PATCH_FUNCTION: PATCH_MSG,
+    PATCH_OBJECT_FUNCTION: PATCH_OBJECT_MSG,
+    PATCH_MULTIPLE_FUNCTION: PATCH_MULTIPLE_MSG,
+}
 
 
 class Problem(NamedTuple):
@@ -84,15 +89,14 @@ class Problem(NamedTuple):
     msg: str
 
 
-def _get_fully_qualified_name(node: ast.expr) -> tuple[str, ...] | None:
+def _get_fully_qualified_name(node: ast.expr) -> tuple[str, ...]:
     """Retrieve the fully qualified name of a call func node.
 
     Args:
         node: The node to get the name of.
 
     Returns:
-        Tuple containing all the elements of the fully qualified name of the node or None if
-        unexpected nodes are found.
+        Tuple containing all the elements of the fully qualified name of the node.
     """
     if isinstance(node, ast.Name):
         return (node.id,)
@@ -100,23 +104,7 @@ def _get_fully_qualified_name(node: ast.expr) -> tuple[str, ...] | None:
         fully_qualified_parent = _get_fully_qualified_name(node.value)
         if fully_qualified_parent:
             return (*fully_qualified_parent, node.attr)
-    return None
-
-
-def _check_patch_keywords(node: ast.Call, msg: str) -> Problem | None:
-    """Check if the given patch call has expected arguments.
-
-    Args:
-        node: The patch call node to check.
-        msg: The error message to return if the check fails.
-
-    Returns:
-        Problem: If the patch call does not have the expected arguments.
-        None: If the patch call has the expected arguments.
-    """
-    if not any(keyword.arg in PATCH_ARGS for keyword in node.keywords):
-        return Problem(lineno=node.lineno, col_offset=node.col_offset, msg=msg)
-    return None
+    return ()
 
 
 class Visitor(ast.NodeVisitor):
@@ -153,16 +141,19 @@ class Visitor(ast.NodeVisitor):
                     )
                 )
 
-        if (
-            name == PATCH_FUNCTION
-            or fully_qualified_name is not None
-            and fully_qualified_name[-2:] == PATCH_OBJECT_FUNCTION
-        ):
-            problem = _check_patch_keywords(
-                node=node, msg=PATCH_MSG if name == PATCH_FUNCTION else PATCH_OBJECT_MSG
-            )
-            if problem:
-                self.problems.append(problem)
+        patch_msg_lookup_key = next(
+            (key for key in (name, fully_qualified_name[-2:]) if key in PATCH_MSG_LOOKUP),
+            None,
+        )
+        if patch_msg_lookup_key in PATCH_MSG_LOOKUP:
+            if not any(keyword.arg in PATCH_ARGS for keyword in node.keywords):
+                self.problems.append(
+                    Problem(
+                        lineno=node.lineno,
+                        col_offset=node.col_offset,
+                        msg=PATCH_MSG_LOOKUP[patch_msg_lookup_key],
+                    )
+                )
 
         # Ensure recursion continues
         self.generic_visit(node)
