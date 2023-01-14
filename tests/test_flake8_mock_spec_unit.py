@@ -10,10 +10,11 @@ import pytest
 from flake8_mock_spec import (
     ASYNC_MOCK_SPEC_MSG,
     MAGIC_MOCK_SPEC_MSG,
-    MOCK_CLASSES,
+    MOCK_MSG_LOOKUP,
     MOCK_SPEC_MSG,
     NON_CALLABLE_MOCK_SPEC_MSG,
     PATCH_MSG,
+    PATCH_OBJECT_MSG,
     Plugin,
 )
 
@@ -216,6 +217,33 @@ def function_1():
         ),
         pytest.param(
             """
+@patch.object()
+def function_1():
+    pass
+""",
+            (f"2:1 {PATCH_OBJECT_MSG}",),
+            id="decorator object no arg",
+        ),
+        pytest.param(
+            """
+@mock.patch.object()
+def function_1():
+    pass
+""",
+            (f"2:1 {PATCH_OBJECT_MSG}",),
+            id="nested decorator object no arg",
+        ),
+        pytest.param(
+            """
+@unittest.mock.patch.object()
+def function_1():
+    pass
+""",
+            (f"2:1 {PATCH_OBJECT_MSG}",),
+            id="deeply nested decorator object no arg",
+        ),
+        pytest.param(
+            """
 @mock.patch()
 def function_1():
     pass
@@ -283,6 +311,15 @@ def function_1():
 """,
             (),
             id="decorator new arg",
+        ),
+        pytest.param(
+            """
+@patch.object(new=1)
+def function_1():
+    pass
+""",
+            (),
+            id="decorator object new arg",
         ),
         pytest.param(
             """
@@ -388,7 +425,21 @@ with patch(new=1):
 patcher = patch(new=1)
 """,
             (),
-            id="assignment manager new arg",
+            id="assignment new arg",
+        ),
+        pytest.param(
+            """
+patcher = None.patch()
+""",
+            (),
+            id="assignment patcher on None no arg",
+        ),
+        pytest.param(
+            """
+patcher = some_patch.object()
+""",
+            (),
+            id="assignment patcher wrong postfix no arg",
         ),
     ],
 )
@@ -402,7 +453,7 @@ def test_plugin_patch(code: str, expected_result: tuple[str, ...]):
 
 
 @pytest.mark.parametrize(
-    "class_", [pytest.param(class_, id=f"{class_} class") for class_ in MOCK_CLASSES]
+    "class_", [pytest.param(class_, id=f"{class_} class") for class_ in MOCK_MSG_LOOKUP]
 )
 def test_mock_classes_exist(class_: str):
     """
