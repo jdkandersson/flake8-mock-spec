@@ -47,7 +47,8 @@ MOCK_MSG_LOOKUP = {
 
 # The attribute actually does exist, mypy reports that it doesn't
 PATCH_FUNCTION: str = mock.patch.__name__  # type: ignore
-PATCH_ARGS = frozenset(("new", "spec", "spec_set", "autospec", "new_callable"))
+PATCH_MULTIPLE_ARGS = frozenset(("spec", "spec_set", "autospec", "new_callable"))
+PATCH_ARGS = frozenset(("new", *PATCH_MULTIPLE_ARGS))
 PATCH_MSG_BASE = (
     f"%s unittest.mock.%s should be called with any of the {', '.join(PATCH_ARGS)} arguments, "
     f"{MORE_INFO_BASE}#fix-%s"
@@ -68,6 +69,11 @@ PATCH_MULTIPLE_MSG = PATCH_MSG_BASE % (
     ".".join(PATCH_MULTIPLE_FUNCTION),
     PATCH_MULTIPLE_CODE.lower(),
 )
+PATCH_ARGS_LOOKUP = {
+    PATCH_FUNCTION: PATCH_ARGS,
+    PATCH_OBJECT_FUNCTION: PATCH_ARGS,
+    PATCH_MULTIPLE_FUNCTION: PATCH_MULTIPLE_ARGS,
+}
 PATCH_MSG_LOOKUP = {
     PATCH_FUNCTION: PATCH_MSG,
     PATCH_OBJECT_FUNCTION: PATCH_OBJECT_MSG,
@@ -146,7 +152,9 @@ class Visitor(ast.NodeVisitor):
             None,
         )
         if patch_msg_lookup_key in PATCH_MSG_LOOKUP:
-            if not any(keyword.arg in PATCH_ARGS for keyword in node.keywords):
+            if not any(
+                keyword.arg in PATCH_ARGS_LOOKUP[patch_msg_lookup_key] for keyword in node.keywords
+            ):
                 self.problems.append(
                     Problem(
                         lineno=node.lineno,

@@ -254,6 +254,15 @@ def function_1():
         ),
         pytest.param(
             """
+@patch.multiple(new=1)
+def function_1():
+    pass
+""",
+            (f"2:1 {PATCH_MULTIPLE_MSG}",),
+            id="decorator multiple new arg",
+        ),
+        pytest.param(
+            """
 @mock.patch()
 def function_1():
     pass
