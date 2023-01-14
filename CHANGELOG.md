@@ -14,7 +14,7 @@
 ### Added
 
 - Lint checks that ensure `Mock` and `MagicMock` constructors have the `spec`
-   or `spec_set`argument
+  or `spec_set`argument
 
 [//]: # "Release links"
 [v1.0.0]: https://github.com/jdkandersson/flake8-mock-spec/releases/v1.0.0

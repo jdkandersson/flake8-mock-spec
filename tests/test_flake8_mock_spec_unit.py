@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import ast
+from unittest import mock
 
 import pytest
 
-from flake8_mock_spec import MAGIC_MOCK_SPEC_MSG, MOCK_SPEC_MSG, Plugin
+from flake8_mock_spec import MAGIC_MOCK_SPEC_MSG, MOCK_SPEC_MSG, Plugin, MOCK_CLASSES
 
 
 def _result(code: str) -> tuple[str, ...]:
@@ -191,3 +192,16 @@ def test_plugin(code: str, expected_result: tuple[str, ...]):
     then: the expected result is returned
     """
     assert _result(code) == expected_result
+
+
+@pytest.mark.parametrize(
+    "class_", [pytest.param(class_, id=f"{class_} class") for class_ in MOCK_CLASSES]
+)
+def test_mock_classes_exist(class_: str):
+    """
+    given: mock class
+    when: the existence of the class on unittest.mock is checked
+    then: the class exists in mock and can be instantiated
+    """
+    assert hasattr(mock, class_)
+    getattr(mock, class_)()
