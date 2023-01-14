@@ -10,7 +10,7 @@ import pytest
 from flake8_mock_spec import (
     ASYNC_MOCK_SPEC_MSG,
     MAGIC_MOCK_SPEC_MSG,
-    MOCK_CLASSES,
+    MOCK_MSG_LOOKUP,
     MOCK_SPEC_MSG,
     NON_CALLABLE_MOCK_SPEC_MSG,
     PATCH_MSG,
@@ -425,7 +425,21 @@ with patch(new=1):
 patcher = patch(new=1)
 """,
             (),
-            id="assignment manager new arg",
+            id="assignment new arg",
+        ),
+        pytest.param(
+            """
+patcher = None.patch()
+""",
+            (),
+            id="assignment patcher on None no arg",
+        ),
+        pytest.param(
+            """
+patcher = some_patch.object()
+""",
+            (),
+            id="assignment patcher wrong postfix no arg",
         ),
     ],
 )
@@ -439,7 +453,7 @@ def test_plugin_patch(code: str, expected_result: tuple[str, ...]):
 
 
 @pytest.mark.parametrize(
-    "class_", [pytest.param(class_, id=f"{class_} class") for class_ in MOCK_CLASSES]
+    "class_", [pytest.param(class_, id=f"{class_} class") for class_ in MOCK_MSG_LOOKUP]
 )
 def test_mock_classes_exist(class_: str):
     """

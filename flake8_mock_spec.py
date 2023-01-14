@@ -10,7 +10,6 @@ MOCK_CLASS: str = mock.Mock.__name__
 MAGIC_MOCK_CLASS: str = mock.MagicMock.__name__
 NON_CALLABLE_MOCK_CLASS: str = mock.NonCallableMock.__name__
 ASYNC_MOCK_CLASS: str = mock.AsyncMock.__name__
-MOCK_CLASSES = frozenset((MOCK_CLASS, MAGIC_MOCK_CLASS, NON_CALLABLE_MOCK_CLASS, ASYNC_MOCK_CLASS))
 SPEC_ARGS = frozenset(("spec", "spec_set"))
 
 ERROR_CODE_PREFIX = "TMS"
@@ -56,10 +55,10 @@ PATCH_MSG_BASE = (
 PATCH_CODE = f"{ERROR_CODE_PREFIX}020"
 PATCH_MSG = PATCH_MSG_BASE % (PATCH_CODE, PATCH_FUNCTION, PATCH_CODE.lower())
 PATCH_OBJECT_CODE = f"{ERROR_CODE_PREFIX}021"
-PATCH_OBJECT_FUNCTION = f"{PATCH_FUNCTION}.object"
+PATCH_OBJECT_FUNCTION = (PATCH_FUNCTION, "object")
 PATCH_OBJECT_MSG = PATCH_MSG_BASE % (
     PATCH_OBJECT_CODE,
-    PATCH_OBJECT_FUNCTION,
+    ".".join(PATCH_OBJECT_FUNCTION),
     PATCH_OBJECT_CODE.lower(),
 )
 PATCH_FUNCTIONS = frozenset((PATCH_FUNCTION, PATCH_OBJECT_FUNCTION))
@@ -79,21 +78,35 @@ class Problem(NamedTuple):
     msg: str
 
 
-def _get_fully_qualified_name(node: ast.expr) -> str | None:
+def _get_fully_qualified_name(node: ast.expr) -> tuple[str, ...] | None:
     """Get the fully qualified name of an attribute node.
 
     Args:
         node: The node to get the name of.
 
     Returns:
-        The fully qualified name of the node.
+        The fully qualified name of the node as a tuple containing all the elements of the name.
     """
     if type(node) is ast.Name:
-        return node.id
+        return (node.id,)
     if type(node) is ast.Attribute:
         fully_qualified_parent = _get_fully_qualified_name(node.value)
         if fully_qualified_parent:
-            return f"{fully_qualified_parent}.{node.attr}"
+            return (*fully_qualified_parent, node.attr)
+    return None
+
+
+def _check_patch_keywords(node: ast.Call, msg: str) -> Problem | None:
+    """Check that call has expected patch arguments.
+
+    Args:
+        node: The patch call node to check.
+
+    Returns:
+        A problem if the patch call does not have the expected arguments or None.
+    """
+    if not any(keyword.arg in PATCH_ARGS for keyword in node.keywords):
+        return Problem(lineno=node.lineno, col_offset=node.col_offset, msg=msg)
     return None
 
 
@@ -119,9 +132,9 @@ class Visitor(ast.NodeVisitor):
         """
         # Get the name of the node that has the call
         fully_qualified_name = _get_fully_qualified_name(node=node.func)
-        name = fully_qualified_name.rsplit(".")[-1] if fully_qualified_name else None
+        name = fully_qualified_name[-1] if fully_qualified_name else None
 
-        if name is not None and name in MOCK_CLASSES:
+        if name in MOCK_MSG_LOOKUP:
             if not any(keyword.arg in SPEC_ARGS for keyword in node.keywords):
                 self.problems.append(
                     Problem(
@@ -131,18 +144,16 @@ class Visitor(ast.NodeVisitor):
                     )
                 )
 
-        if name is not None and name == PATCH_FUNCTION:
-            if not any(keyword.arg in PATCH_ARGS for keyword in node.keywords):
-                self.problems.append(
-                    Problem(lineno=node.lineno, col_offset=node.col_offset, msg=PATCH_MSG)
-                )
-        if fully_qualified_name is not None and fully_qualified_name.endswith(
-            PATCH_OBJECT_FUNCTION
+        if (
+            name == PATCH_FUNCTION
+            or fully_qualified_name is not None
+            and fully_qualified_name[-2:] == PATCH_OBJECT_FUNCTION
         ):
-            if not any(keyword.arg in PATCH_ARGS for keyword in node.keywords):
-                self.problems.append(
-                    Problem(lineno=node.lineno, col_offset=node.col_offset, msg=PATCH_OBJECT_MSG)
-                )
+            problem = _check_patch_keywords(
+                node=node, msg=PATCH_MSG if name == PATCH_FUNCTION else PATCH_OBJECT_MSG
+            )
+            if problem:
+                self.problems.append(problem)
 
         # Ensure recursion continues
         self.generic_visit(node)
