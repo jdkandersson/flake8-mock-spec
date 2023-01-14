@@ -130,3 +130,6 @@ dmypy.json
 
 # Don't commit lock file
 poetry.lock
+
+# Don't commit editor settings
+.vscode
