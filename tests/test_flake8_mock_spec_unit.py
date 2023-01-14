@@ -14,6 +14,7 @@ from flake8_mock_spec import (
     MOCK_SPEC_MSG,
     NON_CALLABLE_MOCK_SPEC_MSG,
     PATCH_MSG,
+    PATCH_MULTIPLE_MSG,
     PATCH_OBJECT_MSG,
     Plugin,
 )
@@ -244,6 +245,24 @@ def function_1():
         ),
         pytest.param(
             """
+@patch.multiple()
+def function_1():
+    pass
+""",
+            (f"2:1 {PATCH_MULTIPLE_MSG}",),
+            id="decorator multiple no arg",
+        ),
+        pytest.param(
+            """
+@patch.multiple(new=1)
+def function_1():
+    pass
+""",
+            (f"2:1 {PATCH_MULTIPLE_MSG}",),
+            id="decorator multiple new arg",
+        ),
+        pytest.param(
+            """
 @mock.patch()
 def function_1():
     pass
@@ -320,6 +339,15 @@ def function_1():
 """,
             (),
             id="decorator object new arg",
+        ),
+        pytest.param(
+            """
+@patch.multiple(spec=1)
+def function_1():
+    pass
+""",
+            (),
+            id="decorator multiple spec arg",
         ),
         pytest.param(
             """

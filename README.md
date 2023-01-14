@@ -82,6 +82,8 @@ rules have been defined:
   the `new`, `spec`, `spec_set`, `autospec` or `new_callable` arguments
 * `TMS021`: checks that `unittest.mock.patch.object` is called with any one or
   more of the `new`, `spec`, `spec_set`, `autospec` or `new_callable` arguments
+* `TMS022`: checks that `unittest.mock.patch.multiple` is called with any one
+  or more of the `spec`, `spec_set`, `autospec` or `new_callable` arguments
 
 ### Fix TMS010
 
@@ -153,8 +155,8 @@ def test_foo():
     mocked_foo = mock.MagicMock(spec_set=Foo)
 ```
 
-For more information about `mock.MagicMock` and how to use it, please refer to the
-official documentation:
+For more information about `mock.MagicMock` and how to use it, please refer to
+the official documentation:
 https://docs.python.org/3/library/unittest.mock.html#unittest.mock.MagicMock
 
 ### Fix TMS012
@@ -190,8 +192,8 @@ def test_foo():
     mocked_foo = mock.NonCallableMock(spec_set=Foo)
 ```
 
-For more information about `mock.NonCallableMock` and how to use it, please refer to the
-official documentation:
+For more information about `mock.NonCallableMock` and how to use it, please
+refer to the official documentation:
 https://docs.python.org/3/library/unittest.mock.html#unittest.mock.NonCallableMock
 
 ### Fix TMS013
@@ -233,7 +235,7 @@ https://docs.python.org/3/library/unittest.mock.html#unittest.mock.AsyncMock
 
 ### Fix TMS020
 
-This linting rule is triggered when calling unittest.mock.patch without
+This linting rule is triggered when calling `unittest.mock.patch` without
 including one or more of the following arguments: `new`, `spec`, `spec_set`,
 `autospec`, or `new_callable`.
 
@@ -272,13 +274,13 @@ foo_patcher = patch("Foo", autospec=True)
 
 For more information about `mock.patch` and how to use it, please refer to the
 official documentation:
-https://docs.python.org/3/library/unittest.mock.html#patch
+https://docs.python.org/3/library/unittest.mock.html#unittest.mock.patch
 
 ### Fix TMS021
 
-This linting rule is triggered when calling unittest.mock.patch.object without
-including one or more of the following arguments: `new`, `spec`, `spec_set`,
-`autospec`, or `new_callable`.
+This linting rule is triggered when calling `unittest.mock.patch.object`
+without including one or more of the following arguments: `new`, `spec`,
+`spec_set`, `autospec`, or `new_callable`.
 
 For example, this code will trigger the rule:
 
@@ -317,4 +319,47 @@ foo_patcher = patch(Foo, "bar", autospec=True)
 
 For more information about `mock.patch.object` and how to use it, please refer
 to the official documentation:
-https://docs.python.org/3/library/unittest.mock.html#patch
+https://docs.python.org/3/library/unittest.mock.html#unittest.mock.patch.object
+
+### Fix TMS022
+
+This linting rule is triggered when calling `unittest.mock.patch.multiple`
+without including one or more of the following arguments: `spec`, `spec_set`,
+`autospec`, or `new_callable`.
+
+For example, this code will trigger the rule:
+
+```Python
+from unittest import mock
+
+@mock.patch.multiple("Foo", FIRST_PATCH='bar', SECOND_PATCH='baz')
+def test_foo():
+    pass
+
+with mock.patch.object("Foo", FIRST_PATCH='bar', SECOND_PATCH='baz') as mocked_foo:
+    pass
+
+foo_patcher = patch("Foo", FIRST_PATCH='bar', SECOND_PATCH='baz')
+```
+
+To fix this issue, include one or more of the aforementioned arguments when
+calling `mock.patch.multiple`. For example:
+
+```Python
+from unittest import mock
+
+from foo import Foo
+
+@mock.patch.multiple("Foo", spec=Foo, FIRST_PATCH='bar', SECOND_PATCH='baz')
+def test_foo():
+    pass
+
+with mock.patch.object("Foo", spec_set=Foo, FIRST_PATCH='bar', SECOND_PATCH='baz') as mocked_foo:
+    pass
+
+foo_patcher = patch("Foo", autospec=True, FIRST_PATCH='bar', SECOND_PATCH='baz')
+```
+
+For more information about `mock.patch.multiple` and how to use it, please
+refer to the official documentation:
+https://docs.python.org/3/library/unittest.mock.html#unittest.mock.patch.multiple

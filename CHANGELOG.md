@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [v1.4.0] - 2023-01-14
+
+### Added
+
+- Lint checks that enforce the use of any one or more of the `spec`,
+  `spec_set`, `autospec`, or `new_callable` arguments when calling
+  `unittest.mock.patch.multiple`.
+
 ## [v1.3.0] - 2023-01-14
 
 ### Added
@@ -49,3 +57,4 @@
 [v1.1.0]: https://github.com/jdkandersson/flake8-mock-spec/releases/v1.1.0
 [v1.2.0]: https://github.com/jdkandersson/flake8-mock-spec/releases/v1.2.0
 [v1.3.0]: https://github.com/jdkandersson/flake8-mock-spec/releases/v1.3.0
+[v1.4.0]: https://github.com/jdkandersson/flake8-mock-spec/releases/v1.4.0
