@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import ast
+from unittest import mock
 from typing import Iterator, NamedTuple
 
-MOCK_CLASS = "Mock"
-MAGIC_MOCK_CLASS = "MagicMock"
-NON_CALLABLE_MOCK_CLASS = "NonCallableMock"
-ASYNC_MOCK_CLASS = "AsyncMock"
+MOCK_CLASS: str = mock.Mock.__name__
+MAGIC_MOCK_CLASS: str = mock.MagicMock.__name__
+NON_CALLABLE_MOCK_CLASS: str = mock.NonCallableMock.__name__
+ASYNC_MOCK_CLASS: str = mock.AsyncMock.__name__
 MOCK_CLASSES = frozenset((MOCK_CLASS, MAGIC_MOCK_CLASS, NON_CALLABLE_MOCK_CLASS, ASYNC_MOCK_CLASS))
 SPEC_ARGS = frozenset(("spec", "spec_set"))
 
