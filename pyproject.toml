@@ -30,7 +30,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.plugins."flake8.extension"]
-TDO = "flake8_mock_spec:Plugin"
+TMS = "flake8_mock_spec:Plugin"
 
 [tool.black]
 line-length = 99
