@@ -15,6 +15,7 @@ from flake8_mock_spec import (
     MOCK_SPEC_MSG,
     NON_CALLABLE_MOCK_SPEC_CODE,
     PATCH_CODE,
+    PATCH_OBJECT_CODE,
 )
 
 
@@ -117,6 +118,14 @@ from unittest import mock
 mock.patch()  # noqa: {PATCH_CODE}
 """,
             id=f"{PATCH_CODE} disabled",
+        ),
+        pytest.param(
+            f"""
+from unittest import mock
+
+mock.patch.object()  # noqa: {PATCH_OBJECT_CODE}
+""",
+            id=f"{PATCH_OBJECT_CODE} disabled",
         ),
     ],
 )
